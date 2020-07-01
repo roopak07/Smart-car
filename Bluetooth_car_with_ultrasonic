@@ -1,0 +1,90 @@
+int data;
+#define m1 5// MOTOR 1
+#define m2 6//MOTOR 2
+#define m3 10// MOTOR 3
+#define m4 11// MOTOR 4
+#define fs 8// ULTRASONIC-1 ECHO PIN 
+#define bs 9// ULTRASONIC-1 TRIG PIN
+
+
+float d,d1,d2,t;//D1= ULTRASONIC-1 DISTANCE   D2=ULTRASONIC-2 DISTANCE D=FORMULA
+int distance(int p)
+{
+  pinMode(p,OUTPUT);
+  digitalWrite(p,LOW);
+  delayMicroseconds(2);
+  digitalWrite(p,HIGH);
+  delayMicroseconds(10);
+  digitalWrite(p,LOW);
+  pinMode(p,INPUT);
+  t=pulseIn(p,HIGH);
+  d=0.034*t/2;// FORMULA
+  Serial.println("distance = "+String(d)+" CM");
+  return d;
+}
+void setup() {
+  Serial.begin(9600);
+  pinMode(m1, OUTPUT);
+  pinMode(m2, OUTPUT);
+  pinMode(m3, OUTPUT);
+  pinMode(m4, OUTPUT);
+  pinMode(fs, OUTPUT);
+  pinMode(bs, OUTPUT);
+}
+
+void loop() {
+  if(Serial.available())
+  {
+    data=Serial.read();
+  }
+  Serial.println(data);
+
+  if(data == '1')
+  {
+  digitalWrite(m1, HIGH);
+  digitalWrite(m2, HIGH);
+  digitalWrite(m3, HIGH);
+  digitalWrite(m4, HIGH);
+  }
+  else if(data == '2')
+  {
+   digitalWrite(m1, HIGH);
+  digitalWrite(m2, LOW);
+  digitalWrite(m3, HIGH);
+  digitalWrite(m4, LOW); 
+  }
+   else if(data == '3')
+  {
+   digitalWrite(m1, LOW);
+  digitalWrite(m2, HIGH);
+  digitalWrite(m3, LOW);
+  digitalWrite(m4, HIGH); 
+  }
+   else if(data == '4')
+  {
+   digitalWrite(m1,LOW);
+  digitalWrite(m2, LOW);
+  digitalWrite(m3, LOW);
+  digitalWrite(m4, LOW); 
+  }
+  d1=distance(2); // ultrasonic pin 2
+  d2=distance(3); // ultrasonic pin 3
+  
+  if( d1<=20 )
+  {
+    digitalWrite(fs,HIGH);
+  }
+  else
+  {
+    digitalWrite(fs,LOW);
+  }
+  
+  if( d2<=20 )
+  {
+    digitalWrite(bs,HIGH);
+  }
+  else
+  {
+    digitalWrite(bs,LOW);
+  }
+  }

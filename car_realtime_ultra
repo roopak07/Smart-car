@@ -1,0 +1,47 @@
+#define fu_p 2
+#define bu_p 3
+#define fb_p 4
+#define bb_p 5
+float f_dist,b_dist;
+float distance(int pin)
+{
+  int t=0;
+  float d=0;
+pinMode(pin,OUTPUT);
+digitalWrite(pin,LOW);
+delayMicroseconds(10);
+digitalWrite(pin,HIGH);
+delayMicroseconds(10);
+digitalWrite(pin,LOW);
+delayMicroseconds(10);
+pinMode(pin,INPUT);
+t=pulseIn(pin,HIGH);
+//Serial.println("Time taken by the signal : " + String(t)+" ms");
+d=0.0343*t/2;
+//Serial.println("Distance : " + String(d)+" cm");
+return d;
+}
+
+void setup() {
+Serial.begin(9600);
+pinMode(fb_p,OUTPUT);
+pinMode(bb_p,OUTPUT);  
+digitalWrite(fb_p,LOW);
+digitalWrite(bb_p,LOW);
+}
+
+void loop() {
+f_dist=distance(fu_p);
+Serial.println("front Distance : " + String(f_dist)+" cm");
+b_dist=distance(bu_p);
+Serial.println("back Distance : " + String(b_dist)+" cm");
+if(f_dist < 20)
+  digitalWrite(fb_p,HIGH);
+else
+  digitalWrite(fb_p,LOW);
+  
+if(b_dist < 20)
+  analogWrite(bb_p,200); // tuning buzzer ,pwm pin
+else
+  digitalWrite(bb_p,LOW);
+}

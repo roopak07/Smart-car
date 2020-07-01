@@ -1,0 +1,91 @@
+#include<String.h>
+#define BLYNK_PRINT Serial
+#include <ESP8266_Lib.h>
+#include <BlynkSimpleShieldEsp8266.h>
+BlynkTimer timer;
+#define EspSerial Serial
+#define ESP8266_BAUD 115200
+ESP8266 wifi(&EspSerial);
+
+#define mica_p A0
+#define alchol_p A1
+#define micd_p 2
+#define fbutton_p 3
+#define bbutton_p 4
+#define relay_p 5
+#define mled_p 6
+#define aled_p 7
+
+int mic_analog_v,mic_digital_v,alchol_v,fbutton_v,bbutton_v;
+
+char auth[] = "b3L760wCXPObLq0TBGdiKlHA9IJFbN6O";
+char ssid[] = "reignite";
+char pass[] = "reignite";
+
+void setup()
+{
+ Serial.begin(115200); 
+ pinMode(mica_p,INPUT);
+ pinMode(alchol_p,INPUT);
+ pinMode(micd_p,INPUT);
+ pinMode(fbutton_p,INPUT);
+ pinMode(bbutton_p,INPUT);
+ pinMode(mled_p,OUTPUT);
+ pinMode(aled_p,OUTPUT);
+ pinMode(relay_p,OUTPUT);
+ 
+ digitalWrite(mled_p,LOW); 
+ digitalWrite(aled_p,LOW); 
+ digitalWrite(relay_p,LOW);
+//wifi module
+  EspSerial.begin(ESP8266_BAUD);
+  delay(10);
+  Blynk.begin(auth, wifi, ssid, pass);
+  Blynk.email("leaprobots.projects@gmail.com@gmail.com"," notification", "IOT service started ");
+  Blynk.notify("IOT service started");
+  Blynk.tweet("IOT service started");
+  timer.setInterval(1000L, sendSensor);
+}
+void sendSensor()
+{
+  mic_digital_v=digitalRead(micd_p);
+
+  mic_analog_v=analogRead(mica_p); 
+  Serial.println(mic_analog_v);
+  Blynk.virtualWrite(V1,mic_analog_v);
+  alchol_v=analogRead(alchol_p);
+  Serial.println("alchol value:"+String(alchol_v));
+  Serial.println("Waiting for breath test");
+  while(mic_analog_v > 80)
+ {
+  Serial.println("breath test done");
+  digitalWrite(mled_p,HIGH);// breath test done green led
+  Blynk.virtualWrite(V2,alchol_v); 
+  if ( alchol_v < 300 )
+  {
+    digitalWrite(aled_p,HIGH);// ALCOHOL TEST DONE INDICATION red
+    digitalWrite(relay_p,HIGH);//relay
+    fbutton_v=digitalRead(fbutton_p);
+    bbutton_v=digitalRead(bbutton_p);
+    if(fbutton_v == 1|| bbutton_v == 1)
+    {
+     Blynk.email("leaprobots.projects@gmail.com@gmail.com", "Crash alert", " car is crashed ");
+     Blynk.notify("car is crashed");
+     Blynk.tweet("car is crashed");
+    }
+  }
+  else
+  {
+  digitalWrite(relay_p,LOW); // relay OFF
+  Blynk.email("leaprobots.projects@gmail.com@gmail.com", "alcohol alert", " over drunk, engine off ");
+  Blynk.notify("over drunk, engine off");
+  Blynk.tweet("over drunk, engine off");
+   }
+  }
+}
+
+void loop() 
+{ 
+  Blynk.run();
+  timer.run();
+}

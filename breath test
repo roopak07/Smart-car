@@ -1,0 +1,18 @@
+#define apin A0
+int aval;
+void setup() 
+{
+ pinMode(apin,INPUT);
+ Serial.begin(9600);
+Serial.println("breath value is 25");
+}
+
+void loop() {
+  aval = analogRead(apin);
+  Serial.println("analog value: "+String(aval));
+  delay(1000);
+  if(aval <= 23 || aval >= 27)
+   Serial.println("breath test done");
+  else
+   Serial.println("waiting for breath test");
+}
